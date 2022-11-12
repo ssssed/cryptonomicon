@@ -8,9 +8,14 @@
         @select-ticker="select"
         @delete-ticker="deleteTicker"
         :tickers="tickers"
-        :sel="sel"
+        :selectedTicker="selectedTicker"
       />
-      <sell-diagram v-if="sel" @remove-select-ticker="removeSelect" />
+      <sell-diagram
+        v-if="selectedTicker"
+        :selectedTickerName="selectedTicker.name"
+        :graph="graph"
+        @remove-select-ticker="removeSelect"
+      />
     </div>
   </div>
 </template>
@@ -26,8 +31,9 @@ export default {
   data() {
     return {
       tickers: [],
-      sel: null,
+      selectedTicker: null,
       error: "",
+      graph: [],
     };
   },
   created() {
@@ -42,7 +48,10 @@ export default {
   },
   watch: {
     tickers() {
-      this.sel = null;
+      localStorage.setItem("crypto-list", JSON.stringify(this.tickers));
+    },
+    select() {
+      this.graph = [];
     },
   },
   methods: {
@@ -55,11 +64,11 @@ export default {
       if (this.check(currentTicker.name)) {
         this.tickers.push(currentTicker);
         this.subscribeToUpdate(currentTicker.name);
-        localStorage.setItem("crypto-list", JSON.stringify(this.tickers));
       }
     },
-    deleteTicker(tickers) {
-      this.tickers = tickers;
+    deleteTicker(ticker) {
+      this.tickers = this.tickers.filter((t) => t.id !== ticker.id);
+      if (this.selectedTicker == ticker) this.selectedTicker = null;
     },
     check(tickerName) {
       if (this.tickers.find((t) => t.name == tickerName)) {
@@ -70,10 +79,10 @@ export default {
       return true;
     },
     select(ticker) {
-      this.sel = ticker;
+      this.selectedTicker = ticker;
     },
     removeSelect(sel) {
-      this.sel = sel;
+      this.selectedTicker = sel;
     },
     subscribeToUpdate(tickerName) {
       setInterval(async () => {
@@ -83,7 +92,7 @@ export default {
         const data = await f.json();
         this.tickers.find((t) => t.name === tickerName).price =
           data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2);
-        if (this.sel?.name === tickerName) {
+        if (this.selectedTicker?.name === tickerName) {
           this.graph.push(data.USD);
         }
       }, 5000);

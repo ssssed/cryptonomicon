@@ -14,7 +14,7 @@
         cursor-pointer
       "
       :class="{
-        'border-4': sel === t,
+        'border-4': selectedTicker === t,
       }"
     >
       <div class="px-4 py-5 sm:p-6 text-center">
@@ -74,16 +74,14 @@ export default {
   },
   props: {
     tickers: Array,
+    selectedTicker: Object,
   },
   methods: {
     select(ticker) {
       this.$emit("select-ticker", ticker);
     },
     deleteTicker(ticker) {
-      this.$emit(
-        "delete-ticker",
-        this.tickers.filter((t) => t.id !== ticker.id)
-      );
+      this.$emit("delete-ticker", ticker);
     },
   },
 };

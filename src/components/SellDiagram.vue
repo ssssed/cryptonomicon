@@ -1,11 +1,15 @@
 <template>
   <section class="relative">
-    <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">VUE - USD</h3>
+    <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
+      {{ selectedTickerName }} - USD
+    </h3>
     <div class="flex items-end border-gray-600 border-b border-l h-64">
-      <div class="bg-purple-800 border w-10 h-24"></div>
-      <div class="bg-purple-800 border w-10 h-32"></div>
-      <div class="bg-purple-800 border w-10 h-48"></div>
-      <div class="bg-purple-800 border w-10 h-16"></div>
+      <div
+        class="bg-purple-800 border w-10"
+        v-for="(bar, idx) in normalizedGraph"
+        :key="idx"
+        :style="{ height: `${bar}%` }"
+      ></div>
     </div>
     <button
       @click="removeSelected"
@@ -39,6 +43,24 @@
 
 <script>
 export default {
+  props: {
+    selectedTickerName: String,
+    graph: Array,
+  },
+  computed: {
+    normalizedGraph() {
+      const maxValue = Math.max(...this.graph);
+      const minValue = Math.min(...this.graph);
+
+      if (maxValue === minValue) {
+        return this.graph.map(() => 50);
+      }
+
+      return this.graph.map(
+        (price) => 5 + ((price - minValue) * 95) / (maxValue - minValue)
+      );
+    },
+  },
   methods: {
     removeSelected() {
       this.$emit("remove-select-ticker", null);
