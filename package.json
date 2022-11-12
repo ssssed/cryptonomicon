@@ -1,0 +1,28 @@
+{
+  "name": "cryptonomicon",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "^0.5.3",
+    "autoprefixer": "^10",
+    "core-js": "^3.8.3",
+    "postcss": "^8",
+    "tailwindcss": "^3",
+    "vue": "^3.2.13"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "vue-cli-plugin-tailwind": "~3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
