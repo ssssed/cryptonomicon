@@ -53,7 +53,7 @@ export default {
     tickers() {
       localStorage.setItem("crypto-list", JSON.stringify(this.tickers));
     },
-    select() {
+    selectedTicker() {
       this.graph = [];
     },
   },
@@ -71,7 +71,7 @@ export default {
     add(ticker) {
       const currentTicker = {
         id: this.tickers.length + 1,
-        name: ticker,
+        name: ticker.toUpperCase(),
         price: "-",
       };
       if (this.check(currentTicker.name)) {
