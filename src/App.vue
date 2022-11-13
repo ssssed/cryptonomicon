@@ -24,6 +24,7 @@
 import SearchCryptoCoin from "./components/SearchCryptoCoin.vue";
 import SellDiagram from "./components/SellDiagram.vue";
 import TickersList from "./components/TickersList.vue";
+import { subscribeToTicker, unsubscribeFromTicker } from "./utils/api";
 export default {
   components: { SearchCryptoCoin, TickersList, SellDiagram },
   name: "App",
@@ -42,7 +43,9 @@ export default {
       const tickerList = JSON.parse(tickerData);
       this.tickers = tickerList;
       this.tickers.forEach((t) => {
-        this.subscribeToUpdate(t.name);
+        subscribeToTicker(t.name, (newPrice) =>
+          this.updateTicker(t.name, newPrice)
+        );
       });
     }
   },
@@ -55,6 +58,16 @@ export default {
     },
   },
   methods: {
+    updateTicker(tickerName, price) {
+      this.tickers
+        .filter((t) => t.name === tickerName)
+        .forEach((t) => {
+          if (t === this.selectedTicker) {
+            this.graph.push(price);
+          }
+          t.price = price;
+        });
+    },
     add(ticker) {
       const currentTicker = {
         id: this.tickers.length + 1,
@@ -62,13 +75,16 @@ export default {
         price: "-",
       };
       if (this.check(currentTicker.name)) {
-        this.tickers.push(currentTicker);
-        this.subscribeToUpdate(currentTicker.name);
+        this.tickers = [...this.tickers, currentTicker];
+        subscribeToTicker(currentTicker.name, (newPrice) =>
+          this.updateTicker(currentTicker.name, newPrice)
+        );
       }
     },
     deleteTicker(ticker) {
       this.tickers = this.tickers.filter((t) => t.id !== ticker.id);
       if (this.selectedTicker == ticker) this.selectedTicker = null;
+      unsubscribeFromTicker(ticker.name);
     },
     check(tickerName) {
       if (this.tickers.find((t) => t.name == tickerName)) {
@@ -83,19 +99,6 @@ export default {
     },
     removeSelect(sel) {
       this.selectedTicker = sel;
-    },
-    subscribeToUpdate(tickerName) {
-      setInterval(async () => {
-        const f = await fetch(
-          `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&api_key=7a7ee3375c78d35cc3def34b98e347b7864691d1bda4dfe7b2eb98566df823d9`
-        );
-        const data = await f.json();
-        this.tickers.find((t) => t.name === tickerName).price =
-          data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2);
-        if (this.selectedTicker?.name === tickerName) {
-          this.graph.push(data.USD);
-        }
-      }, 5000);
     },
   },
 };
